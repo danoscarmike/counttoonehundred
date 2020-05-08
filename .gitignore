@@ -1,4 +1,14 @@
+# output
 *.csv
+
+# venv
 venv/
+bin/
+lib/
+pyvenv.cfg
+
+# IDE
 .idea/
+
+# Python
 *.pyc
