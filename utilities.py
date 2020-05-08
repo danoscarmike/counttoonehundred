@@ -18,6 +18,7 @@ def list_from_service_manager():
     request = SERVICE_CLIENT.list()
     counter = 0
     while request is not None:
+        print(f'Fetching services...', end=' // ')
         response = request.execute()
         for item in response["services"]:
             services.append(item["serviceName"])
@@ -35,9 +36,16 @@ def get_service_json(service_name):
     return json.dumps(service, sort_keys=True, indent=4)
 
 
-def is_cloud_service(service_json):
-    config_string = json.dumps(service_json)
+def is_cloud_service(service_config):
+    config_string = json.dumps(service_config)
+    config_json = json.loads(config_string)
+    if 'Firebase' in config_json.get('title') or 'auth/firebase' in config_string:
+        return False
     if 'auth/cloud-platform' in config_string:
+        return True
+    if 'auth/drive' in config_string:
+        return True
+    if 'auth/apps' in config_string:
         return True
     if 'tos/cloud' in config_string:
         return True
@@ -45,6 +53,7 @@ def is_cloud_service(service_json):
 
 
 if __name__ == "__main__":
-    service_config = get_service_json("vision.googleapis.com")
+    service_config = get_service_json("firebaseappdistribution.googleapis.com")
+    print(service_config)
     if service_config is not None:
         print(is_cloud_service(service_config))
