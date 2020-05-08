@@ -15,11 +15,9 @@ def run(writer):
         is_cloud = 'UNKNOWN'
         service_config = get_service_json(service)
         if service_config is not None:
-            service_json = json.loads(service_config)
-            if service_json.get("title"):
-                title = service_json["title"]
-            if service_json is not None:
-                is_cloud = is_cloud_service(service_json)
+            if service_config.get("title"):
+                title = service_config["title"]
+            is_cloud = is_cloud_service(service_config)
         writer.writerow([title, service, is_cloud])
 
 

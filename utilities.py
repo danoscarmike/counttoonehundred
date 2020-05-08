@@ -31,15 +31,14 @@ def list_from_service_manager():
 @backoff.on_exception(backoff.expo, HttpError, max_time=120, on_backoff=backoff_hdlr(str(HttpError)))
 def get_service_json(service_name):
     print(f'Fetching config for service: {service_name}', end=' // ')
-    service = SERVICE_CLIENT.getConfig(serviceName=service_name).execute()
+    service_config = SERVICE_CLIENT.getConfig(serviceName=service_name).execute()
     print('Success')
-    return json.dumps(service, sort_keys=True, indent=4)
+    return service_config
 
 
 def is_cloud_service(service_config):
     config_string = json.dumps(service_config)
-    config_json = json.loads(config_string)
-    if 'Firebase' in config_json.get('title') or 'auth/firebase' in config_string:
+    if 'Firebase' in service_config.get('title') or 'auth/firebase' in config_string:
         return False
     if 'auth/cloud-platform' in config_string:
         return True
@@ -53,7 +52,7 @@ def is_cloud_service(service_config):
 
 
 if __name__ == "__main__":
-    service_config = get_service_json("firebaseappdistribution.googleapis.com")
-    print(service_config)
+    service_config = get_service_json("vision.googleapis.com")
+    print(json.dumps(service_config, indent=4, sort_keys=True))
     if service_config is not None:
         print(is_cloud_service(service_config))
