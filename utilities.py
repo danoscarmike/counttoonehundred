@@ -42,10 +42,6 @@ def is_cloud_service(service_config):
         return False
     if 'auth/cloud-platform' in config_string:
         return True
-    if 'auth/drive' in config_string:
-        return True
-    if 'auth/apps' in config_string:
-        return True
     if 'tos/cloud' in config_string:
         return True
     return False
