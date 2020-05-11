@@ -14,22 +14,20 @@ def get_discovery():
             groupedApis[service["name"]]["versions"] = [service["version"]]
             groupedApis[service["name"]]["title"] = service["title"]
             if "documentationLink" in service:
-                groupedApis[service["name"]]["doclink"] = \
-                    service["documentationLink"]
+                groupedApis[service["name"]]["doclink"] = service["documentationLink"]
             else:
                 groupedApis[service["name"]]["doclink"] = ""
 
     for key, value in groupedApis.items():
-        versions_string = ','.join(str(v) for v in value["versions"])
-        line_writer.writerow(
-            [value["title"], key, versions_string, value["doclink"]])
+        versions_string = ",".join(str(v) for v in value["versions"])
+        line_writer.writerow([value["title"], key, versions_string, value["doclink"]])
         counter += 1
 
-    print(f'Wrote {counter} lines to file.')
+    print(f"Wrote {counter} lines to file.")
 
 
 if __name__ == "__main__":
-    with open('cloud_service_versions.csv', mode='w') as csv_file:
-        line_writer = csv.writer(csv_file, delimiter=',')
-        line_writer.writerow(['Title', 'Service', 'Version(s)', 'Docs'])
+    with open("../cloud_service_versions.csv", mode="w") as csv_file:
+        line_writer = csv.writer(csv_file, delimiter=",")
+        line_writer.writerow(["Title", "Service", "Version(s)", "Docs"])
         get_discovery()

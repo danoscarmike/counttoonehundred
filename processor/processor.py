@@ -1,7 +1,7 @@
 import json
 
 
-class Processor():
+class Processor:
     json_manager = None
     client = None
 
@@ -11,11 +11,13 @@ class Processor():
 
     def is_cloud_service(self, service_config):
         config_string = json.dumps(service_config)
-        if 'Firebase' in service_config.get('title') or 'auth/firebase' in config_string:
+        if "Firebase" in service_config.get("title"):
             return False
-        if 'auth/cloud-platform' in config_string:
+        if "auth/firebase" in config_string:
+            return False
+        if "auth/cloud-platform" in config_string:
             return True
-        if 'tos/cloud' in config_string:
+        if "tos/cloud" in config_string:
             return True
         return False
 
@@ -28,14 +30,19 @@ class Processor():
         # get the latest set of services from Service Manager
         live_services = self.client.list()
 
-
+        print("Checking for new services...", end=" // ")
         for service in live_services:
+            counter = 0
             if service not in cloud_apis.keys():
+                counter += 1
                 cloud_apis[service] = {}
                 service_config = self.client.get(service)
                 if service_config is not None:
                     if service_config.get("title"):
                         cloud_apis[service]["title"] = service_config["title"]
-                    cloud_apis[service]["is_cloud"] = self.is_cloud_service(service_config)
+                    cloud_apis[service]["is_cloud"] = self.is_cloud_service(
+                        service_config
+                    )
+        print(f"Found {counter} new services.")
 
         self.json_manager.write_json(cloud_apis)

@@ -1,10 +1,11 @@
-from data_management.json_manager import JsonManager
+from data_management.file_manager import FileManager
 from processor.processor import Processor
 from data_management.service_manager import ServiceManagerClient
 
 
 if __name__ == "__main__":
-    json_manager = JsonManager("cloud_apis.json")
+    file_manager = FileManager("cloud_apis")
     client = ServiceManagerClient()
-    processor = Processor(json_manager, client)
+    processor = Processor(file_manager, client)
     processor.update()
+    print("cloud_apis.json updated.")
