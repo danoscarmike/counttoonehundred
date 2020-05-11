@@ -12,3 +12,5 @@ pyvenv.cfg
 
 # Python
 *.pyc
+*/.pytest_cache/
+*/.nox/

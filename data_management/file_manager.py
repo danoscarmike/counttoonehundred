@@ -12,8 +12,6 @@ class FileManager:
             self.csv_file = file_name + ".csv"
 
     def load_json(self):
-        if self.json_file is None:
-            return None
         try:
             with open(self.json_file, "r") as json_file:
                 self.services_json = json.load(json_file)
@@ -29,8 +27,8 @@ class FileManager:
         with open(self.csv_file, "w") as csv_file:
             line_writer = csv.writer(csv_file, delimiter=",")
             line_writer.writerow(["title", "service_name", "is_cloud"])
-            for service in data.keys():
-                service = data.get(service)
-                title = service.get("title")
-                is_cloud = service.get("is_cloud")
-                line_writer.writerow([title, service, is_cloud])
+            for service, details in data.items():
+                service_name = service
+                title = details.get("title")
+                is_cloud = details.get("is_cloud")
+                line_writer.writerow([title, service_name, is_cloud])
