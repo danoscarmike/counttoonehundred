@@ -24,7 +24,7 @@ class ServiceManagerClient:
         services = []
         request = self.client.list()
         counter = 0
-        print('Fetching services...', end=' // ')
+        print("Fetching services...", end=" // ")
         while request is not None:
             response = request.execute()
             for item in response["services"]:
