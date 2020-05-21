@@ -9,9 +9,9 @@ from data_management.file_manager import FileManager
 
 class TestFileManager(TestCase):
     def setUp(self):
-        self.valid_in = FileManager("test_in")
+        self.valid_in = FileManager("test_in.json")
         self.invalid_in = FileManager("")
-        self.valid_out = FileManager("test_out")
+        self.valid_out = FileManager("test_in.json")
         self.test_dict = {"abc.xyz.com": {"title": "ABC XYZ", "is_cloud": False}}
 
     def test_load_json_valid(self):
@@ -23,7 +23,7 @@ class TestFileManager(TestCase):
         self.assertIsNone(self.invalid_in.load_json())
 
     def test_write_json(self):
-        test_file = self.valid_out.write_json(self.test_dict)
+        test_file = self.valid_out.write_file(self.test_dict)
         with open("test_out.json", "r") as test_file:
             test_json = json.load(test_file)
         test_service = test_json.get("abc.xyz.com")
@@ -31,7 +31,7 @@ class TestFileManager(TestCase):
         self.assertEqual("ABC XYZ", test_title)
 
     def test_write_csv(self):
-        test_file = self.valid_out.write_csv(self.test_dict)
+        test_file = self.valid_out.write_file(self.test_dict)
         with open("test_out.csv", "r") as test_file:
             line_reader = csv.reader(test_file, delimiter=",")
             # skip header

@@ -1,1 +1,6 @@
-{"test.googleapis.com": {"title": "Test Service API", "is_cloud": true}}
+{
+    "abc.xyz.com": {
+        "is_cloud": false,
+        "title": "ABC XYZ"
+    }
+}
