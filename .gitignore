@@ -11,3 +11,4 @@ pyvenv.cfg
 *.pyc
 */.pytest_cache/
 */.nox/
+*/__pycache__/
