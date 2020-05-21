@@ -46,6 +46,6 @@ if __name__ == "__main__":
     table = "cloud_canonical"
     # upload_to_table("cloud_apis.csv", dataset, table="cloud_canonical")
     bq = BigQuery(dataset, table)
-    with open("/Users/danom/code/pycode/cloud_apis/cloud_apis.json") as data_file:
+    with open("/Users/danom/code/pycode/cloud_apis/cloud_apis1.json") as data_file:
         data = json.load(data_file)
         bq.stream_update(data)

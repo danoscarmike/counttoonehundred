@@ -6,7 +6,7 @@ from data_management.service_manager import ServiceManagerClient
 
 if __name__ == "__main__":
     bq = BigQuery("yoshi-status.yoshi_coverage", "cloud_canonical")
-    file_manager = FileManager("cloud_apis.json")
+    file_manager = FileManager("cloud_apis1.json")
     client = ServiceManagerClient()
     processor = Processor(bq, client, file_manager)
     processor.update_database()

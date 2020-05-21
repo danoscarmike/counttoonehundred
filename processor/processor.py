@@ -1,5 +1,6 @@
 import json
 
+from data_management.published_protos import get_published_services
 from utils.print_strategy import PrintStrategy as ps
 
 
@@ -34,6 +35,7 @@ class Processor:
     def update_file(self):
         # read in the current canonical list of services
         cloud_apis = self.file_manager.load_json()
+        googleapis_protos = get_published_services()
         if cloud_apis is None:
             print("File not found. Generating new list.")
             cloud_apis = {}
@@ -53,6 +55,10 @@ class Processor:
                     cloud_apis[service]["is_cloud"] = self.is_cloud_service(
                         service_config
                     )
+                    if service in googleapis_protos:
+                        cloud_apis[service]["in_googleapis"] = True
+                    else:
+                        cloud_apis[service]["in_googleapis"] = False
 
         self.print_strategy.print_find_success(counter=counter, source="file")
 
