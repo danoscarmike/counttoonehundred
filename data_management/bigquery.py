@@ -2,6 +2,8 @@ import json
 
 from google.cloud import bigquery
 
+# from published_protos import get_published_services
+
 
 class BigQuery:
     def __init__(self, dataset, table_name):
@@ -41,11 +43,21 @@ class BigQuery:
         return self.client.list_rows(self.table)
 
 
-if __name__ == "__main__":
-    dataset = "yoshi-status.yoshi_coverage"
-    table = "cloud_canonical"
-    # upload_to_table("cloud_apis.csv", dataset, table="cloud_canonical")
-    bq = BigQuery(dataset, table)
-    with open("/Users/danom/code/pycode/cloud_apis/cloud_apis1.json") as data_file:
-        data = json.load(data_file)
-        bq.stream_update(data)
+# if __name__ == "__main__":
+#     dataset = "yoshi-status.yoshi_coverage"
+#     table = "cloud_canonical"
+#     # upload_to_table("cloud_apis.csv", dataset, table="cloud_canonical")
+#     bq = BigQuery(dataset, table)
+#     googleapis = get_published_services()
+#     with open("/Users/danom/code/pycode/cloud_apis/cloud_apis1.json") as data_file:
+#         data = json.load(data_file)
+#         services = []
+#         for service in data:
+#             if service in googleapis:
+#                 in_googleapis = True
+#             else:
+#                 in_googleapis = False
+#             payload = data.get(service)
+#             services.append((service, payload.get("title"), payload.get("is_cloud"), in_googleapis))
+#
+#         bq.stream_update(services)

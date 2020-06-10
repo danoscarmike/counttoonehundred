@@ -6,7 +6,7 @@ import github3
 
 
 def _fetch_jons_json():
-    g = github3.login(token=os.environ["GH_TOKEN"])
+    g = github3.login(token=os.environ["SLOTH_GITHUB_TOKEN"])
     dotnet = g.repository('googleapis', 'google-cloud-dotnet')
     file_b64 = dotnet.file_contents('apis/ServiceDirectory/directory.json').content
     file_decoded = base64.b64decode(file_b64).decode('utf-8')

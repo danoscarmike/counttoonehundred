@@ -11,10 +11,7 @@ class ServiceManagerClient:
         self.client = build("servicemanagement", "v1").services()
 
     def backoff_hdlr(details):
-        print(
-            " // Backing off {wait:0.1f} seconds afters {tries} tries "
-            "calling function {target}\r".format(**details)
-        )
+        print(' // Backing off {wait:0.1f} seconds afters {tries} tries.\r'.format(**details))
 
     def success_hdlr(details):
         print(" // Success\r", end="")
@@ -31,7 +28,7 @@ class ServiceManagerClient:
                 services.append(item["serviceName"])
                 counter += 1
             request = self.client.list_next(request, response)
-        print(f"Found {counter} services.")
+        print(f'Found {counter} services.')
         return services
 
     @backoff.on_exception(

@@ -1,4 +1,5 @@
 # venv
+.venv/
 venv/
 bin/
 lib/
@@ -6,9 +7,11 @@ pyvenv.cfg
 
 # IDE
 .idea/
+counttoonehundred.code-workspace
+.vscode/
 
 # Python
 *.pyc
-*/.pytest_cache/
-*/.nox/
-*/__pycache__/
+.pytest_cache/
+.nox/
+__pycache__/
