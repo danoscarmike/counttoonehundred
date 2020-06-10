@@ -1,0 +1,7 @@
+backoff>=1.10.0
+github3.py>=1.3.0
+google-api-python-client>=1.9.1
+google-cloud-secret-manager>=1.0.0
+PyMySQL>=0.9.3
+requests>=2.23.0
+SQLAlchemy>=1.3.17

@@ -15,3 +15,9 @@ counttoonehundred.code-workspace
 .pytest_cache/
 .nox/
 __pycache__/
+*.egg
+*.egg-info/
+
+
+# Local dev
+cloud_sql_proxy
