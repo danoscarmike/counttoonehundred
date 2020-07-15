@@ -16,11 +16,15 @@ def _fetch_jons_json():
 
 
 def _parse_jons_json(jons_json):
-    services = []
+    services = {}
     for service in jons_json.get("Services"):
         name = service.get("Name")
-        if name not in services:
-            services.append(name)
+        version = service.get("Version")
+        if name in services.keys():
+            if version not in services.get(name).get("versions"):
+                services[name]["versions"].append(version)
+        else:
+            services[name] = {"title": service.get("Title"), "versions": [version]}
     return services
 
 
@@ -29,3 +33,10 @@ def get_published_protos():
     protos = _parse_jons_json(apis_json)
     print(f"googleapis: found {len(protos)} services.")
     return protos
+
+
+if __name__ == "__main__":
+    import pprint
+
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(get_published_protos())

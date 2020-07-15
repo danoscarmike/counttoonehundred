@@ -29,9 +29,6 @@ def init_connection_engine():
 
 
 def init_unix_connection_engine(db_config):
-    # Remember - storing secrets in plaintext is potentially unsafe. Consider using
-    # something like https://cloud.google.com/secret-manager/docs/overview to help keep
-    # secrets secret.
     db_user = _get_secret("client-coverage-status-user", "latest")
     db_pass = _get_secret("client-coverage-status-pw", "latest")
     db_name = os.environ["DB_NAME"]

@@ -1,7 +1,8 @@
 [flake8]
-ignore = E501
+max-line-length = 88
 exclude =
     .git,
     venv,
     .pytest_cache,
     .nox
+ignore = E203

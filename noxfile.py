@@ -9,6 +9,12 @@ def tests(session):
 
 
 @nox.session
+def blacken(session):
+    session.install("black")
+    session.run("black")
+
+
+@nox.session
 def lint(session):
     session.install("flake8")
     session.run("flake8")

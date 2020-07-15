@@ -7,11 +7,12 @@ from google.cloud import secretmanager
 def _get_project():
     try:
         service_creds = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", None)
-        with open(service_creds, "r") as creds_json:
-            creds = json.load(creds_json)
-        project = creds["project_id"]
-        if project:
-            return project
+        if service_creds:
+            with open(service_creds, "r") as creds_json:
+                creds = json.load(creds_json)
+            project = creds["project_id"]
+            if project:
+                return project
         else:
             project = os.environ.get("PROJECT_ID", None)
             if project:
@@ -39,6 +40,10 @@ def is_cloud_service(service_config):
     if "auth/firebase" in config_string:
         return False
     if "auth/cloud-platform" in config_string:
+        return True
+    if "auth/drive" in config_string:
+        return True
+    if "auth/apps" in config_string:
         return True
     if "tos/cloud" in config_string:
         return True
