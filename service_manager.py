@@ -41,23 +41,31 @@ class ServiceManagerClient:
     )
     def get(self, service_name):
         print(f"Fetching config for service: {service_name}", end="")
-        service_config = self.client.getConfig(serviceName=service_name).execute()
-        return service_config
+        try:
+            service_config = self.client.getConfig(serviceName=service_name).execute()
+            return service_config
+        except HttpError as he:
+            if he.resp.status == 403:
+                return None
+            else:
+                raise HttpError(he.resp, he.content)
 
     def parse_service_apis(self, service_config):
-        service_name = service_config.get("name")
-        service_shortname = service_name[0 : service_name.find(".")]
-        apis = []
-        if service_config.get("apis"):
-            for api in service_config.get("apis"):
-                api_name = api.get("name")
+        # service_name = service_config.get("name")
+        # service_shortname = service_name[0 : service_name.find(".")]
+        # apis = []
+        if service_config and service_config.get("apis"):
+            return service_config.get("apis")
+        #     for api in service_config.get("apis"):
+        #         api_version = api.get("version")
+        #         api_name = api.get("name")
 
-                # only keep service-specific apis
-                if api_name.find(service_shortname) == -1:
-                    continue
-                if api_name not in apis:
-                    apis.append(api_name)
-        return apis
+        #         # only keep service-specific apis
+        #         if api_name.find(service_shortname) == -1:
+        #             continue
+        #         if api_name not in apis:
+        #             apis.append((api_version, api_name))
+        # return apis
 
     def download_service_config_json(self, service_config):
         cdir = os.getcwd() + "/service_configs/"
@@ -92,13 +100,11 @@ class ServiceManagerClient:
 
 
 if __name__ == "__main__":
-    # import pprint
-
+    import pprint
     sm = ServiceManagerClient()
-    service_list = sm.list()
-    all_apis = sm.create_apis_json(service_list)
-    print(all_apis)
-    # pp = pprint.PrettyPrinter(indent=4)
-    # pp.pprint(sm.create_apis_json(service_list))
+    redis = sm.get("multiclusteringress.googleapis.com")
+    redis_apis = sm.parse_service_apis(redis)
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(redis_apis)
 
     # apis = sm.parse_service_apis(config)

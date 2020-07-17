@@ -1,3 +1,5 @@
+import json
+
 import sqlalchemy
 
 from database import init_connection_engine
@@ -135,7 +137,7 @@ def update_status_db(event, context):
     print("Database update complete.")
 
 
-def db_refresh_cloud_status():
+def db_refresh_cloud_status(event, context):
     # get all services (Cloud + non-Cloud) from Service Manager
     service_manager = ServiceManagerClient()
     services_list = service_manager.list()
@@ -164,6 +166,41 @@ def db_refresh_cloud_status():
                     )
 
 
+def reset_apis_tbl(event, context):   
+    print(
+        f"Successfully triggered by {context.event_id} published at \
+            {context.timestamp}."
+    )
+
+    stmt_truncate_tbl = sqlalchemy.text("TRUNCATE TABLE apis")
+    stmt_select_star = sqlalchemy.text("SELECT * FROM services")
+    stmt_insert_apis = sqlalchemy.text(
+        "INSERT INTO apis (service_name, apis) VALUES (:service_name, :apis)"
+    )
+
+    # initiate database connection
+    db = init_connection_engine()
+    
+    # instantiate Service Manager client
+    service_manager = ServiceManagerClient()
+
+    with db.connect() as conn:
+        # delete all entries in the table
+        conn.execute(stmt_truncate_tbl)
+
+        # fetch all known services
+        db_all = conn.execute(stmt_select_star).fetchall()
+        for record in db_all:
+            service_name = record[1]
+            service_config = service_manager.get(service_name)
+            apis = json.dumps(service_manager.parse_service_apis(service_config))
+            conn.execute(
+                stmt_insert_apis,
+                service_name=service_name,
+                apis=apis
+            )
+
+
 # for local execution
 if __name__ == "__main__":
     # mock event dict
@@ -176,4 +213,4 @@ if __name__ == "__main__":
 
     context = Context()
 
-    update_status_db(event, context)
+    reset_apis_tbl(event, context)
