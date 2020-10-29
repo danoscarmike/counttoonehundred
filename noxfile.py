@@ -11,7 +11,7 @@ def tests(session):
 @nox.session
 def blacken(session):
     session.install("black")
-    session.run("black")
+    session.run("black", ".")
 
 
 @nox.session
