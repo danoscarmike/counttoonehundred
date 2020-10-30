@@ -17,43 +17,46 @@ def update_status_db(event, context):
 
     # get all services from Service Manager
     service_manager_client = ServiceManagerClient()
-    service_manager = service_manager_client.list()
-    service_manager_set = {x for x in service_manager}
+    sm_packages = service_manager_client.get_all_packages()
+    sm_services = {x for x in sm_packages.keys()}
 
     # get all services with protos published to github/googleapis/googleapis
-    googleapis = get_published_protos()
-    googleapis_services = googleapis.keys()
-    googleapis_set = {x for x in googleapis_services}
+    googleapis_packages = get_published_protos()
+    googleapis_services = {x for x in googleapis_packages.keys()}
 
     # create a superset
-    all_services_set = service_manager_set | googleapis_set
+    all_services_set = sm_services | googleapis_services
 
     # prepare SQL statement templates
     stmt_select_service = sqlalchemy.text(
-        "SELECT * FROM services WHERE service_name=:service"
+        "SELECT * FROM packages WHERE service_name=:service"
     )
 
     stmt_update_public = sqlalchemy.text(
-        "UPDATE services SET is_public=:in_service_manager, \
-            in_googleapis=:in_googleapis WHERE service_name=:service"
+        "UPDATE packages SET is_public=:in_service_manager, \
+            in_googleapis=:in_googleapis WHERE service_name=:service\
+            AND proto_package=:package_name"
     )
 
     stmt_insert_service = sqlalchemy.text(
-        "INSERT INTO services (service_name, title, is_cloud, in_googleapis, \
-            is_public) VALUES (:service, :title, :is_cloud, :in_googleapis, \
+        "INSERT INTO packages (service_name, title, proto_package, version,\
+            is_cloud, in_googleapis, is_public) VALUES (:service, :title,\
+            :package_name, :package_version, :is_cloud, :in_googleapis, \
             :in_service_manager)"
     )
 
-    stmt_select_star = sqlalchemy.text("SELECT * FROM services")
+    stmt_select_star = sqlalchemy.text("SELECT * FROM packages")
 
     # initiate database connection
     db = init_connection_engine()
+
 
     with db.connect() as conn:
         # iterate over superset of services
         for service in all_services_set:
             if service in googleapis:
-                in_googleapis = 1
+                for package in googleapis[service]:
+                    in_googleapis = 1
             else:
                 in_googleapis = 0
 
@@ -62,7 +65,7 @@ def update_status_db(event, context):
             else:
                 in_service_manager = 0
 
-            db_result = conn.execute(stmt_select_service, service=service).fetchone()
+            db_result = conn.execute(stmt_select_service, service=service).fetchall()
 
             # if already in the db: refresh in_googleapis and is_public values
             if db_result:
@@ -193,19 +196,24 @@ def reset_apis_tbl(event, context):
         for record in db_all:
             service_name = record[1]
             service_config = service_manager.get(service_name)
-            apis = json.dumps(service_manager.parse_service_apis(service_config))
-            conn.execute(stmt_insert_apis, service_name=service_name, apis=apis)
+            apis = json.dumps(service_manager.parse_packages(service_config))
+            if apis:
+                conn.execute(stmt_insert_apis, service_name=service_name, apis=apis)
+            else:
+                conn.execute(stmt_insert_apis, service_name=service_name, apis="")
 
 
-# for local execution
 if __name__ == "__main__":
     # mock event dict
     event = {}
 
     # mock google.cloud.functions.Context
+
+    import datetime.datetime as dt
+
     class Context:
-        event_id = None
-        timestamp = None
+        event_id = "test123"
+        timestamp = dt.now()
 
     context = Context()
 

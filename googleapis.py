@@ -6,7 +6,7 @@ import github3
 from utils import _get_secret
 
 
-def _fetch_jons_json():
+def _fetch_directory():
     token = _get_secret("client-coverage-status-ghtoken", "latest")
     g = github3.login(token=token)
     dotnet = g.repository("googleapis", "google-cloud-dotnet")
@@ -15,22 +15,21 @@ def _fetch_jons_json():
     return json.loads(file_decoded)
 
 
-def _parse_jons_json(jons_json):
+def _parse_directory(jons_json):
     services = {}
     for service in jons_json.get("Services"):
         name = service.get("Name")
-        version = service.get("Version")
+        package = service.get("PackageFromDirectory")
         if name in services.keys():
-            if version not in services.get(name).get("versions"):
-                services[name]["versions"].append(version)
+            services[name].append(package)
         else:
-            services[name] = {"title": service.get("Title"), "versions": [version]}
+            services[name] = [package]
     return services
 
 
 def get_published_protos():
-    apis_json = _fetch_jons_json()
-    protos = _parse_jons_json(apis_json)
+    apis_json = _fetch_directory()
+    protos = _parse_directory(apis_json)
     print(f"googleapis: found {len(protos)} services.")
     return protos
 

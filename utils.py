@@ -48,3 +48,14 @@ def is_cloud_service(service_config):
     if "tos/cloud" in config_string:
         return True
     return False
+
+
+def service_to_package(packages_object):
+    packages = {}
+    for service in packages_object.keys():
+        for package in service:
+            if package in packages:
+                packages[package].append(service)
+            else:
+                packages[package] = [service]
+    return packages
