@@ -67,6 +67,29 @@ class ServiceManagerClient:
         #             apis.append((api_version, api_name))
         # return apis
 
+    def parse_packages(self, service_config):
+        service_name = service_config.get("name")
+        service_shortname = service_name[0 : service_name.find(".")]
+        packages = {}
+        if service_config and service_config.get("apis"):
+            for api in service_config.get("apis"):
+                api_version = api.get("version")
+                api_name = api.get("name")
+                package_name = api_name[0 : api_name.find(api_version) - 1]
+
+                # only keep service-specific apis
+                if api_name.find(service_shortname) == -1:
+                    continue
+                if package_name in packages:
+                    if api_version in packages[package_name]:
+                        continue
+                    else:
+                        packages[package_name].append(api_version)
+                else:
+                    packages[package_name] = []
+                    packages[package_name].append(api_version)
+        return packages
+
     def download_service_config_json(self, service_config):
         cdir = os.getcwd() + "/service_configs/"
         service_name = service_config.get("name")
@@ -101,10 +124,9 @@ class ServiceManagerClient:
 
 if __name__ == "__main__":
     import pprint
-    sm = ServiceManagerClient()
-    redis = sm.get("multiclusteringress.googleapis.com")
-    redis_apis = sm.parse_service_apis(redis)
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(redis_apis)
 
-    # apis = sm.parse_service_apis(config)
+    sm = ServiceManagerClient()
+    iam = sm.get("videointelligence.googleapis.com")
+    iam_apis = sm.parse_packages(iam)
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(iam_apis)

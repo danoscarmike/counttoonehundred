@@ -166,7 +166,7 @@ def db_refresh_cloud_status(event, context):
                     )
 
 
-def reset_apis_tbl(event, context):   
+def reset_apis_tbl(event, context):
     print(
         f"Successfully triggered by {context.event_id} published at \
             {context.timestamp}."
@@ -180,7 +180,7 @@ def reset_apis_tbl(event, context):
 
     # initiate database connection
     db = init_connection_engine()
-    
+
     # instantiate Service Manager client
     service_manager = ServiceManagerClient()
 
@@ -194,11 +194,7 @@ def reset_apis_tbl(event, context):
             service_name = record[1]
             service_config = service_manager.get(service_name)
             apis = json.dumps(service_manager.parse_service_apis(service_config))
-            conn.execute(
-                stmt_insert_apis,
-                service_name=service_name,
-                apis=apis
-            )
+            conn.execute(stmt_insert_apis, service_name=service_name, apis=apis)
 
 
 # for local execution
