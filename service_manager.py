@@ -1,6 +1,3 @@
-import json
-import os
-
 import backoff
 
 from googleapiclient.discovery import build
@@ -24,7 +21,7 @@ class ServiceManagerClient:
         self.client = build("servicemanagement", "v1").services()
 
     @backoff.on_exception(backoff.expo, HttpError, on_backoff=backoff_hdlr)
-    def list(self):
+    def list_services(self):
         services = []
         request = self.client.list()
         print("Service Manager: fetching services ... ")
@@ -39,7 +36,7 @@ class ServiceManagerClient:
     @backoff.on_exception(
         backoff.expo, HttpError, on_backoff=backoff_hdlr, on_success=success_hdlr
     )
-    def get(self, service_name):
+    def get_config(self, service_name):
         print(f"Fetching config for service: {service_name}", end="")
         try:
             service_config = self.client.getConfig(serviceName=service_name).execute()
@@ -50,61 +47,39 @@ class ServiceManagerClient:
             else:
                 raise HttpError(he.resp, he.content)
 
-    def parse_service_apis(self, service_config):
-        # service_name = service_config.get("name")
-        # service_shortname = service_name[0 : service_name.find(".")]
-        # apis = []
+    def get_packages_from_config(self, service_config):
+        packages = []
         if service_config and service_config.get("apis"):
-            return service_config.get("apis")
-        #     for api in service_config.get("apis"):
-        #         api_version = api.get("version")
-        #         api_name = api.get("name")
-
-        #         # only keep service-specific apis
-        #         if api_name.find(service_shortname) == -1:
-        #             continue
-        #         if api_name not in apis:
-        #             apis.append((api_version, api_name))
-        # return apis
-
-    def download_service_config_json(self, service_config):
-        cdir = os.getcwd() + "/service_configs/"
-        service_name = service_config.get("name")
-        short_name = service_name[0 : service_name.find(".googleapis.com")]
-        with open(cdir + short_name + ".json", "w") as fp:
-            fp.write(json.dumps(service_config, sort_keys=True, indent=4))
-
-    def create_apis_json(self, service_list):
-        all_apis = {}
-        cdir = os.getcwd() + "/service_configs/"
-        for service in service_list:
-            service_name = service[0 : service.find(".googleapis.com")]
-            try:
-                with open(cdir + service_name + ".json", "r") as fp:
-                    fp.close()
-            except (FileNotFoundError):
-                try:
-                    new_service_config = sm.get(service)
-                    self.download_service_config_json(new_service_config)
-                except (Exception):
+            for api in service_config.get("apis"):
+                api_version = api.get("version")
+                api_name = api.get("name")
+                if api_name.find(api_version) == -1:
                     continue
-            try:
-                with open(cdir + service_name + ".json", "r") as fp:
-                    service_config = json.loads(fp.read())
-                    service_apis = self.parse_service_apis(service_config)
-                    for api in service_apis:
-                        all_apis[api] = service
-            except (FileNotFoundError):
-                continue
-        return json.dumps(all_apis, indent=4, sort_keys=True)
+                else:
+                    package_name = api_name[
+                        0 : api_name.find(api_version) + len(api_version)
+                    ]
+                if package_name not in packages:
+                    packages.append(package_name)
+        return packages
+
+    def get_all_packages(self):
+        packages = {}
+        services = self.list_services()
+        for service in services:
+            config = self.get_config(service)
+            packages[service] = self.get_packages_from_config(config)
+        return packages
 
 
 if __name__ == "__main__":
     import pprint
-    sm = ServiceManagerClient()
-    redis = sm.get("multiclusteringress.googleapis.com")
-    redis_apis = sm.parse_service_apis(redis)
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(redis_apis)
 
-    # apis = sm.parse_service_apis(config)
+    sm = ServiceManagerClient()
+    # iam = sm.get_config("dns.googleapis.com")
+    # iam_apis = sm.get_packages_from_config(iam)
+
+    packages = sm.get_all_packages()
+    
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(packages)
